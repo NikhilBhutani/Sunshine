@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.github.nikhilbhutani.sunshine.FetchWeatherTask;
 import com.github.nikhilbhutani.sunshine.R;
 
 import java.io.BufferedReader;
@@ -51,7 +52,8 @@ public class ForecastFragment extends Fragment {
         //Handle action bar item clicks here.
         int id = item.getItemId();
         if(id== R.id.action_refresh){
-            return true;
+            FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
+            fetchWeatherTask.execute("524901");
         }
 
         return super.onOptionsItemSelected(item);
