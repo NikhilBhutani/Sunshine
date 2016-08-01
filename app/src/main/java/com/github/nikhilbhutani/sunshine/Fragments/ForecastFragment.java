@@ -16,19 +16,16 @@ import android.widget.ListView;
 import com.github.nikhilbhutani.sunshine.FetchWeatherTask;
 import com.github.nikhilbhutani.sunshine.R;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
  * Created by Nikhil Bhutani on 8/1/2016.
  */
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment implements FetchWeatherTask.FetchWeatherTaskListener {
+
+
+    ArrayAdapter<String> arrayAdapter;
 
     public ForecastFragment(){
 
@@ -53,6 +50,7 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         if(id== R.id.action_refresh){
             FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
+            fetchWeatherTask.delegate = this;
             fetchWeatherTask.execute("524901");
         }
 
@@ -81,7 +79,7 @@ public class ForecastFragment extends Fragment {
                 Arrays.asList(forecaseArray));
 
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),
+         arrayAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.list_item_forecast, R.id.list_item_forecast_textview, myweekForecase);
 
         ListView listView = (ListView) view.findViewById(R.id.listview_forecast);
@@ -92,6 +90,19 @@ public class ForecastFragment extends Fragment {
 
 
         return view;
+
+    }
+
+    @Override
+    public void processFinish(String[] output) {
+
+
+        if(output!=null){
+            arrayAdapter.clear();
+
+            for(String mydata : output)
+            arrayAdapter.add(mydata);
+        }
 
     }
 }

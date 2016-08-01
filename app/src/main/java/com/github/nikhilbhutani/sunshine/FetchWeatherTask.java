@@ -24,6 +24,13 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
    private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
+    public FetchWeatherTaskListener delegate = null;
+
+    public interface FetchWeatherTaskListener{
+
+        void processFinish(String[] output);
+
+    }
 
     private String getReadableDateString(long time){
         // Because the API returns a unix timestamp (measured in seconds),
@@ -219,7 +226,11 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return null;
         }
 
+    @Override
+    protected void onPostExecute(String[] strings) {
+            delegate.processFinish(strings);
 
+        }
 
 
 }
