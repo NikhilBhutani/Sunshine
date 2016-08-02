@@ -1,6 +1,9 @@
 package com.github.nikhilbhutani.sunshine.Fragments;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,9 +13,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.github.nikhilbhutani.sunshine.DetailActivity;
 import com.github.nikhilbhutani.sunshine.FetchWeatherTask;
 import com.github.nikhilbhutani.sunshine.R;
 
@@ -49,17 +55,38 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
         //Handle action bar item clicks here.
         int id = item.getItemId();
         if(id== R.id.action_refresh){
-            FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
-            fetchWeatherTask.delegate = this;
-            fetchWeatherTask.execute("524901");
+
+            updateWeather();
+
+
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    private void updateWeather() {
+
+        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask(getActivity());
+        fetchWeatherTask.delegate = this;
+
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String userlocation = prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+
+        fetchWeatherTask.execute(userlocation);
+
+    }
+
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -86,7 +113,18 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
 
         listView.setAdapter(arrayAdapter);
 
+       listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+           @Override
+           public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+               String myforecast = arrayAdapter.getItem(i);
+               Toast.makeText(getActivity(), myforecast, Toast.LENGTH_SHORT).show();
 
+               Intent intent = new Intent(getActivity(), DetailActivity.class);
+               intent.putExtra("Name", myforecast);
+               startActivity(intent);
+
+           }
+       });
 
 
         return view;
