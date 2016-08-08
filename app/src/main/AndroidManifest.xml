@@ -23,6 +23,10 @@
 
         <activity android:name=".SettingsActivity"/>
 
+        <provider
+            android:authorities = "com.github.nikhilbhutani.sunshine.app"
+            android:name = ".data.WeatherProvider" />
+
     </application>
 
 </manifest>
