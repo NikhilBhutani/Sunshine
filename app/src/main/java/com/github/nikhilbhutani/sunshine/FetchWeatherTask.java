@@ -29,62 +29,33 @@ import java.util.Vector;
 /**
  * Created by Nikhil Bhutani on 8/1/2016.
  */
-public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
-   private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
-   private Context mcontext;
-    public FetchWeatherTaskListener delegate = null;
+    private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
+    private final Context mContext;
 
-    public interface FetchWeatherTaskListener{
-
-        void processFinish(String[] output);
-
+    public FetchWeatherTask(Context context) {
+        mContext = context;
     }
 
-
-    public FetchWeatherTask(Context context){
-        this.mcontext=context;
-    }
-
-
-    private String getReadableDateString(long time){
-        // Because the API returns a unix timestamp (measured in seconds),
-        // it must be converted to milliseconds in order to be converted to valid date.
-        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
-        return shortenedDateFormat.format(time);
-    }
+    private boolean DEBUG = true;
 
     /**
-     * Prepare the weather high/lows for presentation.
+     * Helper method to handle insertion of a new location in the weather database.
+     *
+     * @param locationSetting The location string used to request updates from the server.
+     * @param cityName        A human-readable city name, e.g "Mountain View"
+     * @param lat             the latitude of the city
+     * @param lon             the longitude of the city
+     * @return the row ID of the added location.
      */
-    private String formatHighLows(double high, double low, String unitType) {
-
-
-        if (unitType.equals("imperial")) {
-                            high = (high * 1.8) + 32;
-                            low = (low * 1.8) + 32;
-                        } else if (!unitType.equals("metric")) {
-                            Log.d(LOG_TAG, "Unit type not found: " + unitType);
-                        }
-
-
-
-        long roundedHigh = Math.round(high);
-        long roundedLow = Math.round(low);
-
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
-    }
-
-
-
     long addLocation(String locationSetting, String cityName, double lat, double lon) {
         // Students: First, check if the location with this city name exists in the db
 
         long locationId;
 
-        Cursor locationCursor = mcontext.getContentResolver().query(
+        Cursor locationCursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
                 new String[]{WeatherContract.LocationEntry._ID},
                 WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
@@ -108,7 +79,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
 
             // Finally, insert location data into the database.
-            Uri insertedUri = mcontext.getContentResolver().insert(
+            Uri insertedUri = mContext.getContentResolver().insert(
                     WeatherContract.LocationEntry.CONTENT_URI,
                     locationValues
             );
@@ -121,13 +92,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return locationId;
     }
 
-
-
-
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
-     *
+     * <p/>
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
@@ -260,7 +228,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 // Student: call bulkInsert to add the weatherEntries to the database here
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
-                inserted = mcontext.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
+                inserted = mContext.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
             }
 
             Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
@@ -271,7 +239,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         }
     }
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
 
         // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {
@@ -309,7 +277,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .appendQueryParameter(UNITS_PARAM, units)
                     .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                    .appendQueryParameter(APPID_PARAM, "ENTER API KEY HERE")
+                    .appendQueryParameter(APPID_PARAM, "ENTER YOUR API KEY HERE")
                     .build();
 
             URL url = new URL(builtUri.toString());
@@ -341,6 +309,8 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 return null;
             }
             forecastJsonStr = buffer.toString();
+
+            Log.e(LOG_TAG, "JSON STRING  "+forecastJsonStr);
             getWeatherDataFromJson(forecastJsonStr, locationQuery);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -363,11 +333,5 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         }
         return null;
     }
-    @Override
-    protected void onPostExecute(String[] strings) {
-            delegate.processFinish(strings);
-
-        }
-
 
 }
