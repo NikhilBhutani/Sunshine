@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.nikhilbhutani.sunshine.Fragments.DetailFragment;
 import com.github.nikhilbhutani.sunshine.data.WeatherContract;
 
 /**
@@ -35,7 +36,7 @@ public class DetailActivity extends AppCompatActivity{
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new DetailFragment())
                     .commit();
         }
     }
@@ -68,6 +69,7 @@ public class DetailActivity extends AppCompatActivity{
     /**
      * A placeholder fragment containing a simple view.
      */
+    /*
     public static class PlaceholderFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
         ShareActionProvider mShareActionProvider;
@@ -188,10 +190,10 @@ public class DetailActivity extends AppCompatActivity{
 
             boolean isMetric = Utility.isMetric(getActivity());
 
-            String high = Utility.formatTemperature(
+            String high = Utility.formatTemperature(getContext(),
                     data.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
 
-            String low = Utility.formatTemperature(
+            String low = Utility.formatTemperature(getContext(),
                     data.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
 
             mForecastStr = String.format("%s - %s - %s/%s", dateString, weatherDescription, high, low);
@@ -213,5 +215,5 @@ public class DetailActivity extends AppCompatActivity{
         }
 
     }
-
+  */
 }
