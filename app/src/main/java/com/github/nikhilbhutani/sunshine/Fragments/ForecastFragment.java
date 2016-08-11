@@ -1,12 +1,9 @@
 package com.github.nikhilbhutani.sunshine.Fragments;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -19,9 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.github.nikhilbhutani.sunshine.DetailActivity;
 import com.github.nikhilbhutani.sunshine.FetchWeatherTask;
@@ -40,22 +35,25 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
+    private ForecastAdapter mForecastAdapter;
 
+    private ListView mListView;
+    private int mPosition = ListView.INVALID_POSITION;
+
+    private static final String SELECTED_KEY = "selected_position";
 
     /**
-     +     * A callback interface that all activities containing this fragment must
-     +     * implement. This mechanism allows activities to be notified of item
-     +     * selections.
-     +     */
-        public interface Callback {
-                /**
-                 * DetailFragmentCallback for when an item has been selected.
-                */
-                        public void onItemSelected(Uri dateUri);
-            }
-
-
-
+     * +     * A callback interface that all activities containing this fragment must
+     * +     * implement. This mechanism allows activities to be notified of item
+     * +     * selections.
+     * +
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
+    }
 
 
     //This integer id constant has to be unique for every loader
@@ -94,10 +92,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public static final int COL_COORD_LONG = 8;
 
 
-    private ForecastAdapter mForecastAdapter;
-    private ListView listview;
-
-
     public ForecastFragment() {
     }
 
@@ -118,10 +112,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(mForecastAdapter);
+        mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        mListView.setAdapter(mForecastAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -141,8 +135,21 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                             ));
                     startActivity(intent);
                 }
+                mPosition = position;
             }
         });
+
+
+        // If there's instance state, mine it for useful information.
+        // The end-goal here is that the user never knows that turning their device sideways
+        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
+        // or magically appeared to take advantage of room, but data or place in the app was never
+        // actually *lost*.
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
 
         return rootView;
     }
@@ -193,6 +200,18 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 //        super.onStart();
 //        updateWeather();
 //    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
