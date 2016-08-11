@@ -33,10 +33,10 @@ public class Utility {
     }
 
 
-    public static String formatTemperature(Context context,double temperature, boolean isMetric) {
+    public static String formatTemperature(Context context, double temperature, boolean isMetric) {
         double temp;
-        if ( !isMetric ) {
-            temp = 9*temperature/5+32;
+        if (!isMetric) {
+            temp = 9 * temperature / 5 + 32;
         } else {
             temp = temperature;
         }
@@ -46,7 +46,7 @@ public class Utility {
     public static String formatDate(long dateInMillis) {
         Date date = new Date(dateInMillis);
 
-            return DateFormat.getDateInstance().format(date);
+        return DateFormat.getDateInstance().format(date);
 
 
     }
@@ -74,14 +74,14 @@ public class Utility {
                     formatId,
                     today,
                     getFormattedMonthDay(context, dateInMillis)));
-        } else if ( julianDay < currentJulianDay + 7 ) {
+        } else if (julianDay < currentJulianDay + 7) {
             // If the input date is less than a week in the future, just return the day name.
             return getDayName(context, dateInMillis);
         } else {
             // Otherwise, use the form "Mon Jun 3"
             SimpleDateFormat shortenedDateFormat = null;
 
-                shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
+            shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
 
 
             return shortenedDateFormat.format(dateInMillis);
@@ -93,7 +93,7 @@ public class Utility {
      * Given a day, returns just the name to use for that day.
      * E.g "today", "tomorrow", "wednesday".
      *
-     * @param context Context to use for resource localization
+     * @param context      Context to use for resource localization
      * @param dateInMillis The date in milliseconds
      * @return
      */
@@ -107,14 +107,14 @@ public class Utility {
         int currentJulianDay = Time.getJulianDay(System.currentTimeMillis(), t.gmtoff);
         if (julianDay == currentJulianDay) {
             return context.getString(R.string.today);
-        } else if ( julianDay == currentJulianDay +1 ) {
+        } else if (julianDay == currentJulianDay + 1) {
             return context.getString(R.string.tomorrow);
         } else {
             Time time = new Time();
             time.setToNow();
             // Otherwise, the format is just the day of the week (e.g "Wednesday".
             SimpleDateFormat dayFormat = null;
-           {
+            {
                 dayFormat = new SimpleDateFormat("EEEE");
             }
             return dayFormat.format(dateInMillis);
@@ -123,24 +123,24 @@ public class Utility {
 
     /**
      * Converts db date format to the format "Month day", e.g "June 24".
-     * @param context Context to use for resource localization
+     *
+     * @param context      Context to use for resource localization
      * @param dateInMillis The db formatted date string, expected to be of the form specified
-     *                in Utility.DATE_FORMAT
+     *                     in Utility.DATE_FORMAT
      * @return The day in the form of a string formatted "December 6"
      */
 
-    public static String getFormattedMonthDay(Context context, long dateInMillis ) {
-
+    public static String getFormattedMonthDay(Context context, long dateInMillis) {
 
 
         Time time = new Time();
         time.setToNow();
 
-            SimpleDateFormat dbDateFormat = new SimpleDateFormat(Utility.DATE_FORMAT);
+        SimpleDateFormat dbDateFormat = new SimpleDateFormat(Utility.DATE_FORMAT);
 
         SimpleDateFormat monthDayFormat = null;
 
-            monthDayFormat = new SimpleDateFormat("MMMM dd");
+        monthDayFormat = new SimpleDateFormat("MMMM dd");
 
         String monthDayString = monthDayFormat.format(dateInMillis);
 
@@ -181,5 +181,77 @@ public class Utility {
         return String.format(context.getString(windFormat), windSpeed, direction);
     }
 
+
+    /**
+     * +     * Helper method to provide the icon resource id according to the weather condition id returned
+     * +     * by the OpenWeatherMap call.
+     * +     * @param weatherId from OpenWeatherMap API response
+     * +     * @return resource id for the corresponding icon. -1 if no relation is found.
+     * +
+     */
+    public static int getIconResourceForWeatherCondition(int weatherId) {
+        // Based on weather code data found at:
+        // http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
+        if (weatherId >= 200 && weatherId <= 232) {
+            return R.drawable.ic_storm;
+        } else if (weatherId >= 300 && weatherId <= 321) {
+            return R.drawable.ic_light_rain;
+        } else if (weatherId >= 500 && weatherId <= 504) {
+            return R.drawable.ic_rain;
+        } else if (weatherId == 511) {
+            return R.drawable.ic_snow;
+        } else if (weatherId >= 520 && weatherId <= 531) {
+            return R.drawable.ic_rain;
+        } else if (weatherId >= 600 && weatherId <= 622) {
+            return R.drawable.ic_snow;
+        } else if (weatherId >= 701 && weatherId <= 761) {
+            return R.drawable.ic_fog;
+        } else if (weatherId == 761 || weatherId == 781) {
+            return R.drawable.ic_storm;
+        } else if (weatherId == 800) {
+            return R.drawable.ic_clear;
+        } else if (weatherId == 801) {
+            return R.drawable.ic_light_clouds;
+        } else if (weatherId >= 802 && weatherId <= 804) {
+            return R.drawable.ic_cloudy;
+        }
+        return -1;
+    }
+
+    /**
+     * +     * Helper method to provide the art resource id according to the weather condition id returned
+     * +     * by the OpenWeatherMap call.
+     * +     * @param weatherId from OpenWeatherMap API response
+     * +     * @return resource id for the corresponding icon. -1 if no relation is found.
+     * +
+     */
+    public static int getArtResourceForWeatherCondition(int weatherId) {
+        // Based on weather code data found at:
+        // http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
+        if (weatherId >= 200 && weatherId <= 232) {
+            return R.drawable.art_storm;
+        } else if (weatherId >= 300 && weatherId <= 321) {
+            return R.drawable.art_light_rain;
+        } else if (weatherId >= 500 && weatherId <= 504) {
+            return R.drawable.art_rain;
+        } else if (weatherId == 511) {
+            return R.drawable.art_snow;
+        } else if (weatherId >= 520 && weatherId <= 531) {
+            return R.drawable.art_rain;
+        } else if (weatherId >= 600 && weatherId <= 622) {
+            return R.drawable.art_snow;
+        } else if (weatherId >= 701 && weatherId <= 761) {
+            return R.drawable.art_fog;
+        } else if (weatherId == 761 || weatherId == 781) {
+            return R.drawable.art_storm;
+        } else if (weatherId == 800) {
+            return R.drawable.art_clear;
+        } else if (weatherId == 801) {
+            return R.drawable.art_light_clouds;
+        } else if (weatherId >= 802 && weatherId <= 804) {
+            return R.drawable.art_clouds;
+        }
+        return -1;
+    }
 
 }
