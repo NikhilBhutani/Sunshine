@@ -30,6 +30,11 @@
             android:authorities = "com.github.nikhilbhutani.sunshine.app"
             android:name = ".data.WeatherProvider" />
 
+        <service android:name=".services.SunshineService"/>
+
+        //Note the way a static innner class is notated by $
+        <receiver android:name=".services.SunshineService$AlarmReceiver"
+            android:enabled="true"/>
     </application>
 
 </manifest>
