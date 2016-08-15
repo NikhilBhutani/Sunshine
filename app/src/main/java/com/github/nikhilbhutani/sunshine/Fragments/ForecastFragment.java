@@ -28,6 +28,7 @@ import com.github.nikhilbhutani.sunshine.R;
 import com.github.nikhilbhutani.sunshine.Utility;
 import com.github.nikhilbhutani.sunshine.data.WeatherContract;
 import com.github.nikhilbhutani.sunshine.services.SunshineService;
+import com.github.nikhilbhutani.sunshine.sync.SunshineSyncAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,6 +192,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
+
+        SunshineSyncAdapter.syncImmediately(getActivity());
+        /*
         Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
         alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,Utility.getPreferredLocation(getActivity()));
         getActivity().startService(alarmIntent);
@@ -200,7 +204,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         AlarmManager am=(AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
 
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pi);
-
+  */
        // FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
        // String location = Utility.getPreferredLocation(getActivity());
       //  weatherTask.execute(location);
